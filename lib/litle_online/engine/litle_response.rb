@@ -37,7 +37,7 @@ module LitleOnline
 			 }
 			 
       @@response_codes = {
-                           '000' => 'Approved',
+         '000' => 'Approved',
 			   '100' => 'Processing Network Unavailable',
 			   '101' => 'Issuer Unavailable',
 			   '102' => 'Re‐submit Transaction',
@@ -125,43 +125,42 @@ module LitleOnline
       
       def initialize(response_xml)
         xml_response_doc = REXML::Document.new(response_xml)
-	@root_element = xml_response_doc.root
-	@root_element.attributes.each_attribute do |attr|
-	  key = @@root_attr_keys[attr.expanded_name]
-	  unless key.nil?
+	      @root_element = xml_response_doc.root
+	      @root_element.attributes.each_attribute do |attr|
+	        key = @@root_attr_keys[attr.expanded_name]
+	        unless key.nil?
             send("#{key}=",attr.value)
-	  end
-	end
-	@success = false
-	@message = nil
-	@details = Hash.new
-	self.parse
+	        end
+	      end
+      	@success = false
+      	@message = nil
+      	@details = Hash.new
+      	self.parse
       end
       
       
       def parse
-	all_element_keys = Hash.new
-	all_element_keys.merge!(@@common_element_keys)
-	all_element_keys.merge!(@extra_element_keys)
-	main_element = find_element_by_name(@root_element, @main_xml_context)
-#        puts @root_element
-	return if main_element.nil?
-	main_element.attributes.each_attribute do |attr|
-	  key = @@common_attr_keys[attr.expanded_name]
-	  unless key.nil?
-            send("#{key}=",attr.value)
-	  end
-	end
-	main_element.each_element do |element|
-	  key = all_element_keys[element.expanded_name]
-	  unless key.nil?
-	    if element.has_elements?
-	      send("#{key}=", element)
-	    else
+      	all_element_keys = Hash.new
+      	all_element_keys.merge!(@@common_element_keys)
+      	all_element_keys.merge!(@extra_element_keys)
+      	main_element = find_element_by_name(@root_element, @main_xml_context)
+      	return if main_element.nil?
+      	main_element.attributes.each_attribute do |attr|
+      	  key = @@common_attr_keys[attr.expanded_name]
+      	  unless key.nil?
+              send("#{key}=",attr.value)
+      	  end
+      	end
+      	main_element.each_element do |element|
+      	  key = all_element_keys[element.expanded_name]
+      	  unless key.nil?
+      	    if element.has_elements?
+      	      send("#{key}=", element)
+      	    else
               send("#{key}=",element.text)
-	    end
-	  end
-	end
+      	    end
+      	  end
+      	end
       end
       
     public
@@ -175,7 +174,7 @@ module LitleOnline
       def approved?
         return true if @response_code == '000'
       end
-      
+            
       def error
         return "Unknown Error" if @@response_codes[@response_code].nil?
         return @@response_codes[@response_code]

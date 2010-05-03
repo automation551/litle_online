@@ -40,16 +40,17 @@ module ActiveMerchant #:nodoc:
       def convert_response(result, custom_params={})
         params = {
              :authorization => result.transaction_id,
-	     :result => result
-	}
+	           :result => result,
+	           :response_code => result.response_code
+	         }
         unless result.instance_variable_get(:@fraud_result).nil? || result.fraud_result.nil? 
-	  params.merge!({
-		     :avs_code => result.fraud_result.avs_result,
-		     :avs_result => result.fraud_result.avs_message,
-		     :cvv_code => result.fraud_result.validation_result,
-		     :cvv_result => result.fraud_result.cvv_message
-	 })
-	end
+	        params.merge!({
+        		     :avs_code => result.fraud_result.avs_result,
+        		     :avs_result => result.fraud_result.avs_message,
+        		     :cvv_code => result.fraud_result.validation_result,
+        		     :cvv_result => result.fraud_result.cvv_message
+        	 })
+        	end
         LitleResponse.new(result.approved?, result.message, custom_params, params)
       end
       
@@ -69,7 +70,7 @@ module ActiveMerchant #:nodoc:
 
       def authorize(money, creditcard, options = {})
         requires!(options, :report_group, :order_id, :order_source)
-	litle_cc = convert_creditcard(creditcard)
+	      litle_cc = convert_creditcard(creditcard)
         fill_in_billing_name(options, creditcard) if options[:billing_address].nil? || options[:billing_address][:name].nil?
         fill_in_description(options) unless options[:description].nil?
 
@@ -85,7 +86,7 @@ module ActiveMerchant #:nodoc:
         enhanced_data = LitleOnline::EnhancedData.new(options[:enhanced_data]) unless options[:enhanced_data].nil?
 	
 					    
-	result = @litle_gw.authorize(	
+	      result = @litle_gw.authorize(	
 			    :report_group => options[:report_group],
 			    :customer_id => options[:customer_id],
 			    :order_id => options[:order_id],
@@ -104,11 +105,11 @@ module ActiveMerchant #:nodoc:
 			    :enhanced_data => enhanced_data
 			    )
 	
-	custom_params = { 
+	        custom_params = { 
 	             :auth_code => result.auth_code
 		   }
         
-	convert_response(result, custom_params)
+	     convert_response(result, custom_params)
       end
 
 
@@ -121,7 +122,7 @@ module ActiveMerchant #:nodoc:
 			    :amount => money.to_s
 			    )
 					    
-	convert_response(result)
+	        convert_response(result)
       end
 
       
@@ -137,16 +138,16 @@ module ActiveMerchant #:nodoc:
 			    :partial => options[:partial],
 			    :transaction_id => authorization,
 			    :amount => money.to_s,
-    		            :processing_instructions => processing_instructions,
+    		  :processing_instructions => processing_instructions,
 			    :paypal_complete => options[:paypal_complete]
 			    )
 					    
-	convert_response(result)
+	        convert_response(result)
       end
 
       def purchase(money, creditcard, options = {})
         requires!(options, :report_group, :order_id, :order_source)
-	litle_cc = convert_creditcard(creditcard)
+	      litle_cc = convert_creditcard(creditcard)
         fill_in_billing_name(options, creditcard) if options[:billing_address].nil? || options[:billing_address][:name].nil?
         fill_in_description(options) unless options[:description].nil?
 
@@ -162,7 +163,7 @@ module ActiveMerchant #:nodoc:
         pos = LitleOnline::POS.new(options[:pos]) unless options[:pos].nil?
 	
 					    
-	result = @litle_gw.sale(	
+	      result = @litle_gw.sale(	
 			    :report_group => options[:report_group],
 			    :customer_id => options[:customer_id],
 			    :order_id => options[:order_id],
@@ -172,21 +173,21 @@ module ActiveMerchant #:nodoc:
 			    :billing_address => billing_address,
 			    :shipping_address => shipping_address,
 			    :paypal => paypal,
-     		            :credit_card => litle_cc,
+     		  :credit_card => litle_cc,
 			    :custom_billing => custom_billing,
 			    :bill_me_later => bill_me_later,
 			    :cardholder_auth => cardholder_auth,
-    		            :processing_instructions => processing_instructions,
+    		  :processing_instructions => processing_instructions,
 			    :pos => pos,
 			    :enhanced_data => enhanced_data,
 			    :paypal_complete => options[:paypal_complete]
 			    )
 	
-	custom_params = { 
-	             :auth_code => result.auth_code
-		   }
+	      custom_params = { 
+	        :auth_code => result.auth_code
+		    }
         
-	convert_response(result, custom_params)
+	     convert_response(result, custom_params)
       end
 
 
@@ -210,14 +211,14 @@ module ActiveMerchant #:nodoc:
     		              :processing_instructions => processing_instructions
 			      )
 					    
-	  convert_response(result)
+	          convert_response(result)
         end
       end
 
                                              
       def credit_extended(money, creditcard, options = {})
         requires!(options, :report_group, :order_id, :order_source)
-	litle_cc = convert_creditcard(creditcard)
+	      litle_cc = convert_creditcard(creditcard)
         fill_in_billing_name(options, creditcard) if options[:billing_address].nil? || options[:billing_address][:name].nil?
         fill_in_description(options) unless options[:description].nil?
 
@@ -231,7 +232,7 @@ module ActiveMerchant #:nodoc:
         pos = LitleOnline::POS.new(options[:pos]) unless options[:pos].nil?
 	
 					    
-	result = @litle_gw.credit(
+	      result = @litle_gw.credit(
 			    :report_group => options[:report_group],
 			    :customer_id => options[:customer_id],
 			    :order_id => options[:order_id],
@@ -248,11 +249,11 @@ module ActiveMerchant #:nodoc:
 			    :enhanced_data => enhanced_data
 			    )
 	
-	custom_params = { 
+	        custom_params = { 
 	             :order_id => result.order_id
 		   }
         
-	convert_response(result, custom_params)
+	     convert_response(result, custom_params)
       end
 
       def void(authorization, options = {})
@@ -265,7 +266,7 @@ module ActiveMerchant #:nodoc:
     		            :processing_instructions => processing_instructions
 			    )
 					    
-	convert_response(result)
+	        convert_response(result)
       end
       
       
@@ -273,24 +274,27 @@ module ActiveMerchant #:nodoc:
 
 
     class LitleResponse < Response
-      attr_accessor :avs_code, :cvv_code
+      attr_accessor :avs_code, :cvv_code, :response_code
       
       def initialize(success, message, params = {}, options = {})
-        @success, @message, @params = success, message, params.stringify_keys
-	@authorization = options[:authorization]
-	@fraud_review = options[:fraud_review]
-	@avs_code = options[:avs_code]
-	@avs_result = options[:avs_result]
-	@cvv_code = options[:cvv_code]
-	@cvv_result = options[:cvv_result]
-	@result = options[:result]
+        #@success, @message, @params = success, message, params.stringify_keys # TODO HLM
+        @success, @message = success, message
+        @params = params.stringify_keys unless params.blank?
+      	@authorization = options[:authorization]
+      	@fraud_review = options[:fraud_review]
+      	@avs_code = options[:avs_code]
+      	@avs_result = options[:avs_result]
+      	@cvv_code = options[:cvv_code]
+      	@cvv_result = options[:cvv_result]
+      	@result = options[:result]
+      	@response_code = options[:response_code]
       end
     end
 
     LitleGateway.class_eval do
       def purchase(money, creditcard, options = {})
         requires!(options, :report_group, :order_id, :order_source)
-	litle_cc = convert_creditcard(creditcard)
+	      litle_cc = convert_creditcard(creditcard)
         fill_in_billing_name(options, creditcard) if options[:billing_address].nil? || options[:billing_address][:name].nil?
         fill_in_description(options) unless options[:description].nil?
 
@@ -305,31 +309,33 @@ module ActiveMerchant #:nodoc:
         processing_instructions = LitleOnline::ProcessingInstructions.new(options[:processing_instructions]) unless options[:processing_instructions].nil?
         pos = LitleOnline::POS.new(options[:pos]) unless options[:pos].nil?
 
-	result = @litle_gw.avs_only(
-			    :report_group => options[:report_group],
-			    :customer_id => options[:customer_id],
-			    :order_id => options[:order_id],
-			    :amount => money.to_s,
-			    :order_source => options[:order_source],
-			    :billing_address => billing_address,
-     		            :credit_card => litle_cc,
-			    :cardholder_auth => cardholder_auth,
-    		            :processing_instructions => processing_instructions,
-			    :pos => pos
-			)
+        if options[:run_avs]
+          result = @litle_gw.avs_only(
+            :report_group => options[:report_group],
+            :customer_id => options[:customer_id],
+            :order_id => options[:order_id],
+            :amount => money.to_s,
+            :order_source => options[:order_source],
+            :billing_address => billing_address,
+            :credit_card => litle_cc,
+            :cardholder_auth => cardholder_auth,
+            :processing_instructions => processing_instructions,
+            :pos => pos
+          )
 
 
-	custom_params = { 
-	             :auth_code => result.auth_code
-		   }
+          custom_params = { 
+            :auth_code => result.auth_code
+          }
 
-	if result.fraud_result && [12, 13, 20].include?(result.fraud_result.avs_result.to_i)
-	  result.response_code = "353" 
-	  result.message = "Merchant requested decline due to AVS result"
-	  return convert_response(result, custom_params)
-	end
-
-	result = @litle_gw.sale(	
+          if result.fraud_result && [12, 13, 20].include?(result.fraud_result.avs_result.to_i)
+            result.response_code = "353" 
+            result.message = "Merchant requested decline due to AVS result"
+            return convert_response(result, custom_params)
+          end
+        end
+        
+      	result = @litle_gw.sale(	
 			    :report_group => options[:report_group],
 			    :customer_id => options[:customer_id],
 			    :order_id => options[:order_id],
@@ -339,17 +345,17 @@ module ActiveMerchant #:nodoc:
 			    :billing_address => billing_address,
 			    :shipping_address => shipping_address,
 			    :paypal => paypal,
-     		            :credit_card => litle_cc,
+          :credit_card => litle_cc,
 			    :custom_billing => custom_billing,
 			    :bill_me_later => bill_me_later,
 			    :cardholder_auth => cardholder_auth,
-    		            :processing_instructions => processing_instructions,
-			    :pos => pos,
+    		  :processing_instructions => processing_instructions,
+		      :pos => pos,
 			    :enhanced_data => enhanced_data,
 			    :paypal_complete => options[:paypal_complete]
-			    )
-	
-	convert_response(result, custom_params)
+			  )
+
+      	convert_response(result, custom_params)
       end
     end
 
